@@ -31,20 +31,20 @@ if __name__ == "__main__":
 	# Read all kanjis
 	handler = KanjisHandler()
 	xml.sax.parse("kanjivg.xml", handler)
-	kanjis = list(handler.kanjis.values())
+	kanjis = handler.kanjis.values()
 
 	kanjis.sort(lambda x,y: cmp(x.id, y.id))
 
 	componentsList = set()
 	for kanji in kanjis:
 		addComponents(kanji.root, componentsList)
-	print(len(componentsList))
+	print len(componentsList)
 
 	missingComponents = set()
 	for component in componentsList:
 		key = hex(realord(component))[2:]
-		if key not in handler.kanjis: missingComponents.add(component)
-	print("Missing components:")
+		if not handler.kanjis.has_key(key): missingComponents.add(component)
+	print "Missing components:"
 	for component in missingComponents:
-		print(component, hex(realord(component)))
-	print(len(missingComponents), "missing components")
+		print component, hex(realord(component))
+	print len(missingComponents), "missing components"

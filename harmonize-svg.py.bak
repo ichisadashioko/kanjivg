@@ -51,23 +51,23 @@ class TemplateParser(Parser):
 		return self.kanji
 
 	def callback_strokenumbers(self):
-		if "StrokeNumbers" not in self.groups:
-			print("Error - no StrokeNumbers group for kanji %s (%s)" % (self.kanji, hex(kanjivg.realord(self.kanji))))
+		if not self.groups.has_key("StrokeNumbers"):
+			print "Error - no StrokeNumbers group for kanji %s (%s)" % (self.kanji, hex(kanjivg.realord(self.kanji)))
 			return ""
 		numbers = self.groups["StrokeNumbers"]
 		elts = numbers.findall(".//{http://www.w3.org/2000/svg}text")
 		strs = []
 		for elt in elts:
 			attrs = []
-			if "transform" in elt.attrib: attrs.append(' transform="%s"' % (elt.attrib["transform"],))
-			if "x" in elt.attrib: attrs.append(' x="%s"' % (elt.attrib["x"],))
-			if "y" in elt.attrib: attrs.append(' y="%s"' % (elt.attrib["y"],))
+			if elt.attrib.has_key("transform"): attrs.append(' transform="%s"' % (elt.attrib["transform"],))
+			if elt.attrib.has_key("x"): attrs.append(' x="%s"' % (elt.attrib["x"],))
+			if elt.attrib.has_key("y"): attrs.append(' y="%s"' % (elt.attrib["y"],))
 			strs.append('<text%s>%s</text>' % (''.join(attrs), findText(elt)))
 		return "\n\t\t".join(strs)
 
 	def callback_strokepaths(self):
-		if "StrokePaths" not in self.groups:
-			print("Error - no StrokePaths group for kanji %s (%s)" % (self.kanji, hex(kanjivg.realord(self.kanji))))
+		if not self.groups.has_key("StrokePaths"):
+			print "Error - no StrokePaths group for kanji %s (%s)" % (self.kanji, hex(kanjivg.realord(self.kanji)))
 			return ""
 		paths = self.groups["StrokePaths"]
 		elts = paths.findall(".//{http://www.w3.org/2000/svg}path")

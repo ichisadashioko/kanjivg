@@ -42,7 +42,7 @@ def createPathsSVG(f):
 def mergePathsSVG(f):
 	pFile = f[:-4] + "-paths.svg"
 	if not os.path.exists(pFile):
-		print("%s does not exist!" % (pFile,))
+		print "%s does not exist!" % (pFile,)
 		return
 	s = codecs.open(pFile, "r", "utf-8").read()
 	paths = pathre.findall(s)
@@ -51,7 +51,7 @@ def mergePathsSVG(f):
 	while True:
 		match = pathre.search(s[pos:])
 		if match and len(paths) == 0 or not match and len(paths) > 0:
-			print("Paths count mismatch for %s" % (f,))
+			print "Paths count mismatch for %s" % (f,)
 			return
 		if not match and len(paths) == 0: break
 		s = s[:pos + match.start(1)] + paths[0] + s[pos + match.end(1):]
@@ -85,7 +85,7 @@ def release():
 		out.write(data)
 	out.write("</kanjivg>\n")
 	out.close()
-	print(("%d kanji emitted" % len(files)))
+	print("%d kanji emitted" % len(files))
 
 actions = {
 	"split": (createPathsSVG, 2),
@@ -94,9 +94,9 @@ actions = {
 }
 
 if __name__ == "__main__":
-	if len(sys.argv) < 2 or sys.argv[1] not in list(actions.keys()) or \
+	if len(sys.argv) < 2 or sys.argv[1] not in actions.keys() or \
 		len(sys.argv) <= actions[sys.argv[1]][1]:
-		print(helpString)
+		print helpString
 		sys.exit(0)
 
 	action = actions[sys.argv[1]][0]
@@ -106,6 +106,6 @@ if __name__ == "__main__":
 	else:
 		for f in files:
 			if not os.path.exists(f):
-				print("%s does not exist!" % (f,))
+				print "%s does not exist!" % (f,)
 				continue
 			action(f)

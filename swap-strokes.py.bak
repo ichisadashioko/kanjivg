@@ -113,7 +113,7 @@ def swap_strokes(kanji, a, b):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description="""Swaps data for strokes a and b in the kanjivg svg
+        description=u"""Swaps data for strokes a and b in the kanjivg svg
 file "file".
 Select one of the three options, number, data or stroke.
 Look at the svg file with a text editor to determine which of the last two
@@ -122,16 +122,16 @@ out of order, run the script twice.""")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-n', '--number', action='store_const',
                        const=swap_numbers, dest='function',
-                       help="""Swap the stroke numbers. Use this  when the
+                       help=u"""Swap the stroke numbers. Use this  when the
 numbers seen are out of order.""")
     group.add_argument('-d', '--data',  action='store_const',
                        const=swap_stroke_data, dest='function',
-                       help="""Swap only the vector data of the strokes.
+                       help=u"""Swap only the vector data of the strokes.
 Use this when the stroke types are correct in the original file, but the
 graphical data doesn't match these types.""")
     group.add_argument('-s', '--stroke', action='store_const',
                        const=swap_strokes, dest='function',
-                       help="""Swap the whole strokes, including the stroke
+                       help=u"""Swap the whole strokes, including the stroke
 type. Use this if the graphical stroke data matches the stroke types in the
 original file, but the strokes are in the wrong order.""")
     parser.add_argument('file', type=str, help='Kanji SVG file')

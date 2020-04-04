@@ -43,7 +43,7 @@ def realord(s, pos = 0):
 	code = ord(s[pos])
 	if code >= 0xD800 and code < 0xDC00:
 		if (len(s) <= pos + 1):
-			print("realord warning: missing surrogate character")
+			print "realord warning: missing surrogate character"
 			return 0
 		code2 = ord(s[pos + 1])
 		if code2 >= 0xDC00 and code < 0xE000:
@@ -51,8 +51,8 @@ def realord(s, pos = 0):
 	return code
 
 def realchr(i):
-	if i < 0x10000: return chr(i)
-	else: return chr(((i - 0x10000) >> 10) + 0xD800) + chr(0xDC00 + (i & 0x3ff))
+	if i < 0x10000: return unichr(i)
+	else: return unichr(((i - 0x10000) >> 10) + 0xD800) + unichr(0xDC00 + (i & 0x3ff))
 
 class Kanji:
 	"""Describes a kanji. The root stroke group is accessible from the strokes member."""
@@ -236,7 +236,7 @@ class KanjisHandler(BasicHandler):
 
 	def handle_end_kanji(self):
 		if len(self.groups) != 0:
-			print("WARNING: stroke groups remaining after reading kanji!")
+			print "WARNING: stroke groups remaining after reading kanji!"
 		self.groups = []
 
 	def handle_start_strokegr(self, attrs):
@@ -245,17 +245,17 @@ class KanjisHandler(BasicHandler):
 		group = StrokeGr(parent)
 
 		# Now parse group attributes
-		if "element" in attrs: group.element = str(attrs["element"])
-		if "variant" in attrs: group.variant = str(attrs["variant"])
-		if "partial" in attrs: group.partial = str(attrs["partial"])
-		if "original" in attrs: group.original = str(attrs["original"])
-		if "part" in attrs: group.part = int(attrs["part"])
-		if "number" in attrs: group.number = int(attrs["number"])
-		if "tradForm" in attrs and str(attrs["tradForm"]) == "true": group.tradForm = True
-		if "radicalForm" in attrs and str(attrs["radicalForm"]) == "true": group.radicalForm = True
-		if "position" in attrs: group.position = str(attrs["position"])
-		if "radical" in attrs: group.radical = str(attrs["radical"])
-		if "phon" in attrs: group.phon = str(attrs["phon"])
+		if attrs.has_key("element"): group.element = unicode(attrs["element"])
+		if attrs.has_key("variant"): group.variant = str(attrs["variant"])
+		if attrs.has_key("partial"): group.partial = str(attrs["partial"])
+		if attrs.has_key("original"): group.original = unicode(attrs["original"])
+		if attrs.has_key("part"): group.part = int(attrs["part"])
+		if attrs.has_key("number"): group.number = int(attrs["number"])
+		if attrs.has_key("tradForm") and str(attrs["tradForm"]) == "true": group.tradForm = True
+		if attrs.has_key("radicalForm") and str(attrs["radicalForm"]) == "true": group.radicalForm = True
+		if attrs.has_key("position"): group.position = unicode(attrs["position"])
+		if attrs.has_key("radical"): group.radical = unicode(attrs["radical"])
+		if attrs.has_key("phon"): group.phon = unicode(attrs["phon"])
 
 		self.groups.append(group)
 
@@ -263,42 +263,42 @@ class KanjisHandler(BasicHandler):
 		if group.original: self.metComponents.add(group.original)
 
 		if group.number:
-			if not group.part: print("%s: Number specified, but part missing" % (self.kanji.kId()))
+			if not group.part: print "%s: Number specified, but part missing" % (self.kanji.kId())
 			# The group must exist already
 			if group.part > 1:
-				if group.element + str(group.number) not in self.compCpt:
-					print("%s: Missing numbered group" % (self.kanji.kId()))
+				if not self.compCpt.has_key(group.element + str(group.number)):
+					print "%s: Missing numbered group" % (self.kanji.kId())
 				elif self.compCpt[group.element + str(group.number)] != group.part - 1:
-					print("%s: Incorrectly numbered group" % (self.kanji.kId()))
+					print "%s: Incorrectly numbered group" % (self.kanji.kId())
 			# The group must not exist
 			else:
-				if group.element + str(group.number) in self.compCpt:
-					print("%s: Duplicate numbered group" % (self.kanji.kId()))
+				if self.compCpt.has_key(group.element + str(group.number)):
+					print "%s: Duplicate numbered group" % (self.kanji.kId())
 			self.compCpt[group.element + str(group.number)] = group.part
 		# No number, just a part - groups restart with part 1, otherwise must
 		# increase correctly
 		elif group.part:
 				# The group must exist already
 			if group.part > 1:
-				if group.element not in self.compCpt:
-					print("%s: Incorrectly started multi-part group" % (self.kanji.kId()))
+				if not self.compCpt.has_key(group.element):
+					print "%s: Incorrectly started multi-part group" % (self.kanji.kId())
 				elif self.compCpt[group.element] != group.part - 1:
-					print("%s: Incorrectly splitted multi-part group" % (self.kanji.kId()))
+					print "%s: Incorrectly splitted multi-part group" % (self.kanji.kId())
 			self.compCpt[group.element] = group.part
 
 	def handle_end_strokegr(self):
 		group = self.groups.pop()
 		if len(self.groups) == 0:
 			if self.kanji.strokes:
-				print("WARNING: overwriting root of kanji!")
+				print "WARNING: overwriting root of kanji!"
 			self.kanji.strokes = group
 
 	def handle_start_stroke(self, attrs):
 		if len(self.groups) == 0: parent = None
 		else: parent = self.groups[-1]
 		stroke = Stroke(parent)
-		stroke.stype = str(attrs["type"])
-		if "path" in attrs: stroke.svg = str(attrs["path"])
+		stroke.stype = unicode(attrs["type"])
+		if attrs.has_key("path"): stroke.svg = unicode(attrs["path"])
 		self.groups[-1].childs.append(stroke)
 
 class SVGHandler(BasicHandler):
@@ -322,17 +322,17 @@ class SVGHandler(BasicHandler):
 	
 		group = StrokeGr(parent)
 		# Now parse group attributes
-		if "kvg:element" in attrs: group.element = str(attrs["kvg:element"])
-		if "kvg:variant" in attrs: group.variant = str(attrs["kvg:variant"])
-		if "kvg:partial" in attrs: group.partial = str(attrs["kvg:partial"])
-		if "kvg:original" in attrs: group.original = str(attrs["kvg:original"])
-		if "kvg:part" in attrs: group.part = int(attrs["kvg:part"])
-		if "kvg:number" in attrs: group.number = int(attrs["kvg:number"])
-		if "kvg:tradForm" in attrs and str(attrs["kvg:tradForm"]) == "true": group.tradForm = True
-		if "kvg:radicalForm" in attrs and str(attrs["kvg:radicalForm"]) == "true": group.radicalForm = True
-		if "kvg:position" in attrs: group.position = str(attrs["kvg:position"])
-		if "kvg:radical" in attrs: group.radical = str(attrs["kvg:radical"])
-		if "kvg:phon" in attrs: group.phon = str(attrs["kvg:phon"])
+		if attrs.has_key("kvg:element"): group.element = unicode(attrs["kvg:element"])
+		if attrs.has_key("kvg:variant"): group.variant = str(attrs["kvg:variant"])
+		if attrs.has_key("kvg:partial"): group.partial = str(attrs["kvg:partial"])
+		if attrs.has_key("kvg:original"): group.original = unicode(attrs["kvg:original"])
+		if attrs.has_key("kvg:part"): group.part = int(attrs["kvg:part"])
+		if attrs.has_key("kvg:number"): group.number = int(attrs["kvg:number"])
+		if attrs.has_key("kvg:tradForm") and str(attrs["kvg:tradForm"]) == "true": group.tradForm = True
+		if attrs.has_key("kvg:radicalForm") and str(attrs["kvg:radicalForm"]) == "true": group.radicalForm = True
+		if attrs.has_key("kvg:position"): group.position = unicode(attrs["kvg:position"])
+		if attrs.has_key("kvg:radical"): group.radical = unicode(attrs["kvg:radical"])
+		if attrs.has_key("kvg:phon"): group.phon = unicode(attrs["kvg:phon"])
 
 		self.groups.append(group)
 
@@ -340,27 +340,27 @@ class SVGHandler(BasicHandler):
 		if group.original: self.metComponents.add(group.original)
 
 		if group.number:
-			if not group.part: print("%s: Number specified, but part missing" % (self.currentKanji.kId()))
+			if not group.part: print "%s: Number specified, but part missing" % (self.currentKanji.kId())
 			# The group must exist already
 			if group.part > 1:
-				if group.element + str(group.number) not in self.compCpt:
-					print("%s: Missing numbered group" % (self.currentKanji.kId()))
+				if not self.compCpt.has_key(group.element + str(group.number)):
+					print "%s: Missing numbered group" % (self.currentKanji.kId())
 				elif self.compCpt[group.element + str(group.number)] != group.part - 1:
-					print("%s: Incorrectly numbered group" % (self.currentKanji.kId()))
+					print "%s: Incorrectly numbered group" % (self.currentKanji.kId())
 			# The group must not exist
 			else:
-				if group.element + str(group.number) in self.compCpt:
-					print("%s: Duplicate numbered group" % (self.currentKanji.kId()))
+				if self.compCpt.has_key(group.element + str(group.number)):
+					print "%s: Duplicate numbered group" % (self.currentKanji.kId())
 			self.compCpt[group.element + str(group.number)] = group.part
 		# No number, just a part - groups restart with part 1, otherwise must
 		# increase correctly
 		elif group.part:
 				# The group must exist already
 			if group.part > 1:
-				if group.element not in self.compCpt:
-					print("%s: Incorrectly started multi-part group" % (self.currentKanji.kId()))
+				if not self.compCpt.has_key(group.element):
+					print "%s: Incorrectly started multi-part group" % (self.currentKanji.kId())
 				elif self.compCpt[group.element] != group.part - 1:
-					print("%s: Incorrectly splitted multi-part group" % (self.currentKanji.kId()))
+					print "%s: Incorrectly splitted multi-part group" % (self.currentKanji.kId())
 			self.compCpt[group.element] = group.part
 
 	def handle_end_g(self):
@@ -376,6 +376,6 @@ class SVGHandler(BasicHandler):
 		if len(self.groups) == 0: parent = None
 		else: parent = self.groups[-1]
 		stroke = Stroke(parent)
-		stroke.stype = str(attrs["kvg:type"])
-		if "d" in attrs: stroke.svg = str(attrs["d"])
+		stroke.stype = unicode(attrs["kvg:type"])
+		if attrs.has_key("d"): stroke.svg = unicode(attrs["d"])
 		self.groups[-1].childs.append(stroke)
